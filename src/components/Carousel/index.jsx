@@ -14,11 +14,12 @@ import useAuth from '../../hooks/useAuth';
 
 import Splide from '@splidejs/splide';
 import '@splidejs/splide/css/skyblue';
+import { api } from "../../services/api";
 
 export default function Carousel({ data }) {
   const { user } = useAuth();
-  const id = crypto.randomUUID();
 
+  const id = crypto.randomUUID();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,16 +34,18 @@ export default function Carousel({ data }) {
     navigate(`/edit/${id}`);
   }
 
+  console.log();
+
   return (
     <Section id={`splide-${id}`} className="splide">
       <div className="splide__track">
         <ul className="splide__list">
-          {data.map((item) =>
-            <Card key={item.id} className="splide__slide">
-              <img src={molla} alt="spaguetti gambe" />
-              <h2>{item.name} {'>'}</h2>
-              <p>{item.description}</p>
-              <span>R$ {item.price}</span>
+          {data.map((dish) =>
+            <Card key={dish.id} className="splide__slide">
+              <img src={`${api.getUri()}/files/${dish.image}`} alt={dish.name} />
+              <h2>{dish.name} {'>'}</h2>
+              <p>{dish.description}</p>
+              <span>R$ {dish.price}</span>
 
               {!user.admin && (
                 <StepperContainer>
@@ -55,7 +58,7 @@ export default function Carousel({ data }) {
 
               {user.admin ? (
                 <Action
-                  onClick={() => handleEditDishNavigate(item.id)}
+                  onClick={() => handleEditDishNavigate(dish.id)}
                 >
                   <Edit size={24} color="#fff" />
                 </Action>

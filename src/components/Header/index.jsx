@@ -20,9 +20,9 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   const navigate = useNavigate();
-
   const { signOut, user } = useAuth();
 
   function handleToggleMenu() {
@@ -54,7 +54,12 @@ export default function Header() {
 
           <InputWrapper className="input-wrapper">
             <Search color="#fff" size={24} />
-            <Input type="search" placeholder="Busque por pratos ou ingredientes" />
+            <Input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Busque por pratos ou ingredientes"
+            />
           </InputWrapper>
 
           <Button

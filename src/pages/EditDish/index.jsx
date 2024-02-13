@@ -1,34 +1,58 @@
 import { useEffect, useState } from "react";
 import { Container, CustomInputFile, InputContainer, TagsContainer, Wrapper } from "./styles";
 import { ArrowLeft, Upload } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import TagItem from "../../components/TagItem";
 
 import { api } from "../../services/api";
 
 export default function EditDish() {
   const [ingredients, setIngredients] = useState([]);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [currentIngredient, setCurrentIngredient] = useState('');
-  const [price, setPrice] = useState('');
+  const [price, setPrice] = useState(0);
   const [image, setImage] = useState('');
+  const [category, setCategory] = useState('#');
+
+  const [categories, setCategories] = useState([]);
+
+  const params = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadDish() {
-      const { id } = useParams();
+      const { id } = params;
 
       try {
-        const response = await api.get(`/dishes/${id}`);
-        const data = response.data;
+        const categoryResponse = await api.get('/categories');
+        const { categories } = categoryResponse.data;
 
-        console.log(data);
+        setCategories(categories);
 
+        const dishResponse = await api.get(`/dishes/${id}`);
+        const { dishes } = dishResponse.data;
+
+        dishes.map((dish) => {
+          setName(dish.name);
+          setDescription(dish.description);
+          setPrice(dish.price.replace(',', '.'));
+          setIngredients(dish.ingredients_list.split(','));
+
+          if (categories.length > 0) {
+            const categoryMatch = categories.find((category) => category.name === dish.category_name);
+            setCategory(categoryMatch.id);
+          }
+
+
+        });
       } catch {
         alert(`Erro ao obter informações.`);
       }
     }
 
     loadDish();
-  }, [])
+  }, []);
 
   function handleAddIngredientTag() {
     if (!currentIngredient) return;
@@ -43,6 +67,22 @@ export default function EditDish() {
     setIngredients(newIngredientsArray);
   }
 
+  function handleSubmit() {
+
+  }
+
+  async function handleDeletePlate() {
+    const { id } = params;
+
+    try {
+      const response = await api.delete('/dishes/' + id);
+      alert('Prato deletado com sucesso!');
+      navigate('/');
+    } catch {
+      alert('Ocorreu um erro ao deletar esse prato. Tente novamente!');
+    }
+  }
+
   return (
     <Container>
       <Link
@@ -52,7 +92,7 @@ export default function EditDish() {
         <span>voltar</span>
       </Link>
 
-      <h1>Adicionar prato</h1>
+      <h1>Editar prato</h1>
 
       <Wrapper>
         <InputContainer>
@@ -82,17 +122,25 @@ export default function EditDish() {
             id="input-name"
             placeholder="Ex: Salada Caesar"
             type="text"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
           />
         </InputContainer>
         <InputContainer>
           <label htmlFor="input-select">
             Categoria
           </label>
-          <select id="input-select">
+          <select
+            id="input-select"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+          >
             <option value="#" disabled selected>Selecione uma categoria...</option>
-            <option value="">Categoria 1</option>
-            <option value="">Categoria 2</option>
-            <option value="">Categoria 3</option>
+            {categories && categories.map((cat) => {
+              return (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              );
+            })}
           </select>
         </InputContainer>
       </Wrapper>
@@ -126,10 +174,10 @@ export default function EditDish() {
           </label>
           <input
             id="input-price"
-            placeholder="R$ 20,00"
+            placeholder="R$ 00,00"
             type="number"
             value={price}
-            onChange={(event) => setPrice(event.target.value)}
+            onChange={(event) => setPrice(event.target.value.toString())}
           />
         </InputContainer>
       </Wrapper>
@@ -138,16 +186,31 @@ export default function EditDish() {
           <label htmlFor="input-description">
             Descrição
           </label>
-          <textarea id="input-description" placeholder="Fale brevemente sobre o seu prato..."/>
+          <textarea
+            id="input-description"
+            placeholder="Fale brevemente sobre o seu prato..."
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
         </InputContainer>
       </Wrapper>
 
-      <button
-        id="save"
-        type="submit"
-      >
-        Salvar alterações
-      </button>
+      <Wrapper>
+        <button
+          id="save"
+          type="submit"
+        >
+          Salvar alterações
+        </button>
+
+        <button
+          id="delete"
+          type="button"
+          onClick={handleDeletePlate}
+        >
+          Excluir prato
+        </button>
+      </Wrapper>
     </Container>
   );
 }

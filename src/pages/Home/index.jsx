@@ -7,7 +7,6 @@ import {
 import Carousel from '../../components/Carousel';
 
 import banner from '../../assets/banner.png';
-import gambe from '../../assets/dishes/gambe.png';
 
 import useAuth from '../../hooks/useAuth';
 import { api } from "../../services/api";
@@ -16,6 +15,7 @@ export default function Home() {
   const { user } = useAuth();
 
   const [categories, setCategories] = useState([]);
+  const [dishes, setDishes] = useState([]);
 
   useEffect(() => {
     async function loadCategories() {
@@ -24,44 +24,25 @@ export default function Home() {
         const { categories } = response.data;
 
         setCategories(categories);
-      } catch(error) {
-        console.log(error);
+      } catch {
+        alert('Falha ao carregar as categorias! Tente novamente mais tarde.')
+      }
+    }
+
+    async function loadDishes() {
+      try {
+        const response = await api.get('/dishes');
+        const { dishes } = response.data;
+
+        setDishes(dishes);
+      } catch {
+        alert('Falha ao carregar os pratos! Tente novamente mais tarde.')
       }
     }
 
     loadCategories();
+    loadDishes();
   }, []);
-
-  const data = [
-    {
-      id: 1,
-      image: '../../assets/dishes/gambe.png',
-      name: 'Spaguetti Gambe',
-      description: 'Descrição tudo certo legal',
-      price: 79.58
-    },
-    {
-      id: 2,
-      image: '../../assets/dishes/gambe.png',
-      name: 'Spaguetti Gambe',
-      description: 'Descrição tudo certo legal',
-      price: 79.58
-    },
-    {
-      id: 3,
-      image: '../../assets/dishes/gambe.png',
-      name: 'Spaguetti Gambe',
-      description: 'Descrição tudo certo legal',
-      price: 79.58
-    },
-    {
-      id: 4,
-      image: {gambe},
-      name: 'Spaguetti Gambe',
-      description: 'Descrição tudo certo legal',
-      price: 79.58
-    }
-  ];
 
   return (
     <Container>
@@ -78,7 +59,7 @@ export default function Home() {
           return (
             <Section key={category.id}>
               <h1>{category.name}</h1>
-              <Carousel data={data} isAdmin={user.admin} />
+              <Carousel data={dishes.filter((dish) => dish.category_name === category.name)} isAdmin={user.admin} />
             </Section>
           )
         })

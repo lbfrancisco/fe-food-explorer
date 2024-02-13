@@ -44,14 +44,13 @@ export const Container = styled.form`
     }
   }
 
-  > button#save {
+  button#save, button#delete {
     display: flex;
     align-items: center;
     gap: 8px;
 
     max-width: max-content;
     padding: 14px;
-    margin-top: 24px;
 
     border: none;
     border-radius: 4px;
@@ -60,8 +59,16 @@ export const Container = styled.form`
     transition: background 0.2s;
   }
 
-  > button#save:hover {
+  button#save:hover {
     background: ${({ theme }) => theme.COLORS.TOMATO[300]};
+  }
+
+  button#delete {
+    background: ${({ theme }) => theme.COLORS.DARK[300]};
+  }
+
+  button#delete:hover {
+    background: ${({ theme }) => theme.COLORS.DARK[700]};
   }
 
   @media screen and (min-width: 768px) {
