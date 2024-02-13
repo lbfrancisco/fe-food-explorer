@@ -13,7 +13,7 @@ export default function EditDish() {
   const [ingredients, setIngredients] = useState([]);
   const [currentIngredient, setCurrentIngredient] = useState('');
   const [category, setCategory] = useState('#');
-  const [image, setImage] = useState('');
+  const [image, setImage] = useState(null);
 
   const params = useParams();
   const navigate = useNavigate();
@@ -25,8 +25,6 @@ export default function EditDish() {
       try {
         const dishResponse = await api.get(`/dishes/${id}`);
         const { dishes } = dishResponse.data;
-
-        console.log(dishes[0]);
 
         setName(dishes[0].name);
         setDescription(dishes[0].description);
@@ -43,7 +41,6 @@ export default function EditDish() {
         }
       } catch(error) {
         alert(`Erro ao obter informações.`);
-        console.log(error);
       }
     }
 
@@ -81,25 +78,36 @@ export default function EditDish() {
       return alert('Por favor, preencha todos os campos digitáveis!');
     }
 
-    const fileFormData = new FormData();
-    fileFormData.append('image', image);
-
     const { id } = params;
 
     try {
-      if (!fileFormData.get('image')) {
+      if (image) {
+        const fileFormData = new FormData();
+        fileFormData.append('image', image);
+
+        await api.patch(`/dishes/${id}`, fileFormData).then(() => {
+          api.put(`/dishes/${id}`, {
+            name,
+            description,
+            price: price.replace('.', ','),
+            category_id: category,
+            ingredients
+          })
+        })
+
+        alert('Prato atualizado com sucesso');
+        navigate('/');
+      } else {
         await api.put(`/dishes/${id}`, {
           name,
           description,
           price: price.replace('.', ','),
           category_id: category,
           ingredients
-        });
+        })
 
         alert('Prato atualizado com sucesso');
         navigate('/');
-      } else {
-        alert('com form data')
       }
     } catch(error) {
       alert('Ocorreu um erro ao atualizar seu prato. Tente novamente!');
@@ -119,6 +127,14 @@ export default function EditDish() {
     }
   }
 
+  function handleChangeDishImage(event) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    setImage(file);
+  }
+
   return (
     <Container>
       <Link
@@ -132,19 +148,18 @@ export default function EditDish() {
 
       <Wrapper>
         <InputContainer>
-          <label htmlFor="input-file">
+          <label htmlFor="image">
             Imagem do prato
           </label>
           <CustomInputFile>
             <input
-              id="file-upload"
+              id="image"
               type="file"
-              value={image}
-              onChange={(event) => setImage(event.target.value)}
+              onChange={handleChangeDishImage}
             />
             <Upload size={24} color="#fff"/>
           {image ? (
-            <span>{image.split('\\').pop()}</span>
+            <span>{image.name}</span>
           ) : (
             <span>Selecione imagem</span>
           )}
