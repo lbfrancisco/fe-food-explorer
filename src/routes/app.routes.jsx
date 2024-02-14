@@ -21,7 +21,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Layout isAdmin={user.admin} />}>
         <Route path="/" element={<Home isAdmin={user.admin} />} />
-        <Route path="/dish" element={<Dish />} />
+        <Route path="/dish/:id" element={<Dish />} />
         <Route path="/edit/:id" element={<EditDish />} />
         <Route path="/new" element={<NewDish />} />
       </Route>
