@@ -44,7 +44,7 @@ export const Content = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 64px;
   margin-top: 40px;
 
   > img {
@@ -105,7 +105,7 @@ export const StepperContainer = styled.div`
     justify-content: center;
 
     button {
-      font-size: 10px;
+      font-size: 12px;
     }
   }
 

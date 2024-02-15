@@ -25,28 +25,37 @@ export const Card = styled.li`
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  padding: 24px;
   gap: 24px;
 
   width: clamp(13.125rem, 11.3393rem + 8.9286vw, 19.375rem);
   height: clamp(18.25rem, 15.2143rem + 15.1786vw, 28.875rem);
+
   color: ${({ theme }) => theme.COLORS.LIGHT[300]};
-  position: relative;
-  text-align: center;
-  line-height: 160%;
-
-  border-radius: 8px;
-
   background: ${({ theme }) => theme.COLORS.DARK[200]};
   border: 1px solid ${({ theme }) => theme.COLORS.DARK[300]};
+  border-radius: 8px;
+  text-align: center;
+  padding: 24px;
 
   > img {
     width: clamp(5.5rem, 3.9286rem + 7.8571vw, 11rem);
   }
 
-  > h2 {
-    font-family: 'Poppins', sans-serif;
-    font-size: clamp(0.875rem, 0.6964rem + 0.8929vw, 1.5rem);
+  > button {
+    border: none;
+    outline: none;
+    background: transparent;
+
+    color: ${({ theme }) => theme.COLORS.LIGHT[300]};
+
+    > h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(0.875rem, 0.6964rem + 0.8929vw, 1.5rem);
+    }
+  }
+
+  > button:hover {
+    color: ${({ theme }) => theme.COLORS.CAKE[200]};
   }
 
   > p {

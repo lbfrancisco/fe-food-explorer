@@ -89,7 +89,7 @@ export default function EditDish() {
           api.put(`/dishes/${id}`, {
             name,
             description,
-            price: price.replace('.', ','),
+            price: Number(price).toFixed(2).replace('.', ','),
             category_id: category,
             ingredients
           })
@@ -101,7 +101,7 @@ export default function EditDish() {
         await api.put(`/dishes/${id}`, {
           name,
           description,
-          price: price.replace('.', ','),
+          price: Number(price).toFixed(2).replace('.', ','),
           category_id: category,
           ingredients
         })

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -9,15 +9,18 @@ import { Action, Card, Section, StepperContainer } from './styles';
 
 import { Edit, Heart } from 'lucide-react';
 
-import molla from '../../assets/dishes/molla.png';
 import useAuth from '../../hooks/useAuth';
+import useCart from '../../hooks/useCart';
 
 import Splide from '@splidejs/splide';
 import '@splidejs/splide/css/skyblue';
 import { api } from "../../services/api";
 
 export default function Carousel({ data }) {
+  const [favorites, setFavorites] = useState([]);
+
   const { user } = useAuth();
+  const { addToCart } = useCart();
 
   const id = crypto.randomUUID();
   const navigate = useNavigate();
@@ -34,7 +37,27 @@ export default function Carousel({ data }) {
     navigate(`/edit/${id}`);
   }
 
-  console.log();
+  function handleDishViewNavigate(id) {
+    navigate(`/dish/${id}`);
+  }
+
+  function handleToggleFavorite(id) {
+    if (favorites.find((favorite) => favorite === id)) {
+      setFavorites((prev) => prev.filter(favorite => favorite !== id));
+    } else {
+      setFavorites((prev) => [...prev, id]);
+    }
+  }
+
+  function handleAddToCart(dish) {
+    const dishToCart = {
+      id: dish.id,
+      price: dish.price,
+      quantity: 1,
+    }
+
+    addToCart(dishToCart);
+  }
 
   return (
     <Section id={`splide-${id}`} className="splide">
@@ -43,14 +66,16 @@ export default function Carousel({ data }) {
           {data.map((dish) =>
             <Card key={dish.id} className="splide__slide">
               <img src={`${api.getUri()}/files/${dish.image}`} alt={dish.name} />
-              <h2>{dish.name} {'>'}</h2>
+              <button onClick={() => handleDishViewNavigate(dish.id)}>
+                <h2>{dish.name} {'>'}</h2>
+              </button>
               <p>{dish.description}</p>
               <span>R$ {dish.price}</span>
 
               {!user.admin && (
                 <StepperContainer>
                   <Stepper />
-                  <Button onClick={() => {}}>
+                  <Button onClick={() => handleAddToCart(dish)}>
                     incluir
                   </Button>
                 </StepperContainer>
@@ -63,8 +88,19 @@ export default function Carousel({ data }) {
                   <Edit size={24} color="#fff" />
                 </Action>
               ) : (
-                <Action>
-                  <Heart size={24} color="#fff" />
+                <Action onClick={() => handleToggleFavorite(dish.id)}>
+                  {favorites.find((favorite) => favorite === dish.id) ? (
+                    <Heart
+                      size={24}
+                      color="#fff"
+                      fill="#fff"
+                    />
+                  ) : (
+                    <Heart
+                      size={24}
+                      color="#fff"
+                    />
+                  )}
                 </Action>
               )}
             </Card>

@@ -21,7 +21,7 @@ export default function Menu({ isAdmin, handleToggleMenu }) {
             {isAdmin
               && (
               <li>
-                <Link to="/items/create">
+                <Link to="/new">
                   Novo prato
                 </Link>
               </li>

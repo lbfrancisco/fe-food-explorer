@@ -7,7 +7,10 @@ import Routes from './routes';
 
 import defaultTheme from './styles/themes/default';
 import GlobalStyles from './styles/global';
+
 import { AuthProvider } from './hooks/useAuth';
+import { CartProvider } from './hooks/useCart';
+import { SearchProvider } from './hooks/useSearch';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -15,7 +18,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <ThemeProvider theme={defaultTheme}>
         <GlobalStyles />
         <AuthProvider>
-          <Routes />
+          <SearchProvider>
+            <CartProvider>
+              <Routes />
+            </CartProvider>
+          </SearchProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

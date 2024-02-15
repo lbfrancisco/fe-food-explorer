@@ -1,16 +1,58 @@
-import React from 'react';
-import { Container, Content, DishDescription, StepperContainer, Tag, Tags } from './styles';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import { Container, Content, DishDescription, StepperContainer, Tag, Tags } from './styles';
 import { ArrowLeft } from 'lucide-react';
 
-import gambe from '../../assets/dishes/gambe.png';
 import Stepper from '../../components/Stepper';
 import Button from '../../components/Button';
-import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import { api } from "../../services/api";
 
 export default function Dish() {
   const { user } = useAuth();
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [ingredients, setIngredients] = useState([]);
+  const [image, setImage] = useState('');
+
+  const params = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadDish() {
+      const { id } = params;
+
+      try {
+        const response = await api.get(`/dishes/${id}`);
+        const { dishes } = response.data;
+
+        if (dishes[0].ingredients_list.length > 0) {
+          const ingredientsArray = dishes[0].ingredients_list.split(',');
+          const formattedIngredients = ingredientsArray.map(ingredient => {
+            return { name: ingredient.trim() };
+          });
+
+          setIngredients(formattedIngredients);
+        }
+
+        setName(dishes[0].name);
+        setDescription(dishes[0].description);
+        setPrice(dishes[0].price);
+        setImage(dishes[0].image);
+      } catch {
+        alert('Ocorreu um erro ao tentar buscar seu prato. Tente novamente!');
+      }
+    }
+
+    loadDish();
+  }, []);
+
+  function handleEditDish() {
+    const { id } = params;
+    navigate(`/edit/${id}`)
+  }
 
   return (
     <Container>
@@ -19,22 +61,21 @@ export default function Dish() {
         <span>voltar</span>
       </Link>
       <Content>
-        <img src={gambe} alt="" />
+        <img src={`${api.getUri()}/files/${image}`} alt={name} />
         <DishDescription>
-          <h1>Spaguetti Gambe</h1>
-          <p>Rabanetes, folhas verdes e molho agridoce salpicados com gergelim. O pão naan dá um toque especial.</p>
+          <h1>{name}</h1>
+          <p>{description}</p>
           <Tags>
-            <Tag>alface</Tag>
-            <Tag>rabanetes</Tag>
-            <Tag>cebola</Tag>
-            <Tag>alface</Tag>
-            <Tag>rabanetes</Tag>
-            <Tag>cebola</Tag>
+            {ingredients.map((ingredient, index) => {
+              return (
+                <Tag key={index}>{ingredient.name}</Tag>
+              )
+            })}
           </Tags>
 
           {user.admin ? (
             <StepperContainer>
-              <Button onClick={() => {}}>
+              <Button onClick={handleEditDish}>
                 Editar prato
               </Button>
             </StepperContainer>
@@ -42,7 +83,7 @@ export default function Dish() {
             <StepperContainer>
               <Stepper />
               <Button onClick={() => {}}>
-                incluir • R$ 13,97
+                incluir • R$ {price}
               </Button>
             </StepperContainer>
           )}
